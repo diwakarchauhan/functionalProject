@@ -8,12 +8,36 @@ import Data.Array.Repa
 import Language.Haskell.Extension
 
 --create array by y =  fromListUnboxed(Z :.(4::Int):.(4::Int)) [1..16]
-createArr::(Array U ((Z :. Int) :. Int) Double ) -> Int ->Int ->(IO (Array U DIM2 Double))
-createArr  y row col= computeP $ traverse y id (\f (Z:.i :. j) -> if j  > 0 && i  > 0 && j < col -1 && i < row -1 then(sum'' (f(Z:.i :.j))  (f(Z:.i :.j+1)) (f(Z:.i :.j-1))  (f(Z:.i+1 :.j)) (f(Z:.i-1 :.j)))
+-- let y1 =  Data.Array.Repa.map (+0) y
+createArr::(Array D ((Z :. Int) :. Int) Double ) ->(Array D DIM2 Double)
+createArr  y = traverse y id (\f (Z:.i :. j) -> if j  > 0 && i  > 0 && j < col -1 && i < row -1 then(sum'' (f(Z:.i :.j))  (f(Z:.i :.j+1)) (f(Z:.i :.j-1))  (f(Z:.i+1 :.j)))
                                                                   else f(Z:.i:.j))
+    where row = dim!! 0
+          col = dim!! 1
+          dim = (listOfShape (extent y))
                                                                   
-sum'' x1 x2 x3 x4 x5 = (x1+x2+x3+x4+x5)/5                                                                  
+sum'' x1 x2 x3 x4  = (x1+x2+x3+x4)/5                                                                  
 
+createArr1::(Array D ((Z :. Int) :. Int) Double ) ->(Array D DIM2 Double)
+createArr1  y = traverse y id (\f (Z:.i :. j) -> if j  > 0 && i  > 0 && j < col -1 && i < row -1 then 2*f(Z:.i :.j)
+                                                                  else f(Z:.i:.j))
+    where row = dim!! 0
+          col = dim!! 1
+          dim = (listOfShape (extent y))
+
+computeFuncIter::(Array D ((Z :. Int) :. Int) Double )->((Array D ((Z :. Int) :. Int) Double ) ->(Array D DIM2 Double))->Int ->(IO (Array U DIM2 Double))
+computeFuncIter y func numIter  | numIter == 1  = computeP y
+                                 | otherwise = computeFuncIter (func y) func  (numIter - 1)
+    
+    --do 
+    --                        let res = (take numIter (iterate func y))!!(numIter - 1)
+    --                        computeP res
+                            
+--computeFuncChange::(Array D ((Z :. Int) :. Int) Double )->((Array D ((Z :. Int) :. Int) Double ) ->(Array D DIM2 Double))->Int ->(IO (Array U DIM2 Double))
+--computeFuncChange y func numIter = do 
+--                            let arrList = iterate func y
+--                            let val = map sumAllP arrList
+--                            computeP res
 --functions of 1D array
 setBoundaryLeft1D :: (Array U (Z :. Int) Double) -> Double -> (IO (Array U DIM1 Double))
 setBoundaryLeft1D array val = computeP $ traverse array id (\f(Z :. i) -> if i == 0 then val else f(Z:.i))
@@ -30,8 +54,8 @@ setBoundaryAll1D array val= computeP $ traverse array id (\f(Z :. i) -> if i == 
 
 --Functions of 2D array
 setBoundaryAll2D :: (Array U ((Z :. Int) :. Int) Double ) -> Double->(IO (Array U DIM2 Double))
-setBoundaryAll2D array val = computeP $ traverse array id (\f (Z:. i:. j) -> if j > 0 || i > 0 || i < dimOne -1 || j < dimTwo -1 then f(Z:. i :. j)
-                                                                                        else val)
+setBoundaryAll2D array val = computeP $ traverse array id (\f (Z:. i:. j) -> if j == 0 || i == 0 || i == dimOne -1 || j == dimTwo -1 then val
+                                                                                        else f(Z:. i :. j))
     where dimOne = dim !! 0
           dimTwo = dim !! 1
           dim = (listOfShape (extent array))                                                                                                                                   
