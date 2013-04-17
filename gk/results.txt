@@ -1,0 +1,20 @@
+For Vector Double with 100,000 values 
+magnitude x 1826002.0327172873 (0.35 secs, 35930520 bytes)
+magnitude y 7303460.3891256815 (0.48 secs, 60317884 bytes)
+dot x y
+add x y
+distance x y
+convertUnit x 
+constMul a x
+isUnitVec v 
+quicksort x
+
+For Vector Double with 1,000 values 
+dot x y 1.3615040000001004e7 (1.22 secs, 156741464 bytes)
+add x y 1.94 secs, 185366872 bytes)
+distance x y 5500.519520918072 (1.24 secs, 157256576 bytes)
+convertUnit x (0.35 secs, 30480756 bytes)
+isUnitVec v (0.01 secs, 815388 bytes)
+
+
+
